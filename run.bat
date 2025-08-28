@@ -1,23 +1,23 @@
 @echo off
-SETLOCAL
-cd /d "%~dp0"
+setlocal enabledelayedexpansion
 
-REM Check if venv exists
-IF NOT EXIST venv (
-    echo Creating virtual environment "venv"...
-    python -m venv venv
+REM repo root
+cd /d %~dp0
+
+REM venv
+if not exist .venv (
+    py -3 -m venv .venv
 )
 
-REM Activate venv
-echo Activating virtual environment...
-CALL venv\Scripts\activate.bat
+call .venv\Scripts\activate.bat
 
-REM Upgrade pip
-echo Upgrading pip...
-python -m pip install --upgrade pip
+py -m pip install --upgrade pip
+py -m pip install -r requirements.txt
 
-REM Install dependencies
-echo Installing dependencies...
-python -m pip install -r requirements.txt
+REM optional, set YOLO_SRC to a URL or local path
+REM set YOLO_SRC=https://huggingface.co/MKgoud/License-Plate-Recognizer/resolve/main/LP-detection.pt
+py scripts\download_models.py
 
-ENDLOCAL
+if not exist backend\results mkdir backend\results
+
+py -m uvicorn backend.main:app --host 0.0.0.0 --port 8000

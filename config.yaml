@@ -1,4 +1,14 @@
 # config.yaml
+paths:
+  models_root: backend/resources/models
+  tokenizer_dir: backend/resources/models/tokenizer
+  onnx_model: backend/resources/models/model.onnx
+  yolo_weights: backend/resources/models/LP-detection.pt
+
+redaction:
+  style: box
+  log_provenance: true
+
 
 # Model settings
 model:

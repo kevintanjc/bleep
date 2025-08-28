@@ -17,3 +17,5 @@ ultralytics==8.3.172
 
 fastapi==0.111.0
 uvicorn[standard]==0.30.0
+
+huggingface_hub>=0.23
