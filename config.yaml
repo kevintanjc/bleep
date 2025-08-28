@@ -4,19 +4,19 @@
 model:
   path: backend/resources/models/LP-detection.pt
 
-# Output directory
-output:
-  results_dir: backend/results
+# Input/Output directory
+io:
+  input_dir: backend/resources/images
+  results_img_dir: backend/results/images
+  results_rpt_dir: backend/results/reports
 
 # OCR settings
 ocr:
-  tesseract_cmd: "" # e.g. "C:/Program Files/Tesseract-OCR/tesseract.exe" on Windows
+  # Set tesseract_cmd to the path of your Tesseract executable
+  # For example, on Windows it might be in the "Program Files" folder
+  tesseract_cmd: "C:/Program Files/Tesseract-OCR/tesseract.exe"
   config: "--psm 6"
   conf_threshold: 0 # minimum confidence score to accept word
-
-# Redaction settings
-redaction:
-  padding: 4
 
 # PII patterns (regex)
 patterns:
