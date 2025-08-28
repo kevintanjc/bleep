@@ -218,6 +218,6 @@ def build_analyzer(spacy_model: str = "en_core_web_lg", use_distilbert: bool = T
             )
             analyzer.registry.add_recognizer(db)
         except Exception:
-            import traceback
-            print("[DistilBERT ONNX] init failed:\n" + traceback.format_exc())
+                import traceback
+                print("[DistilBERT ONNX] init failed:\n" + traceback.format_exc())
     return analyzer
