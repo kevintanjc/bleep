@@ -3,7 +3,7 @@ set -e
 cd "$(dirname "$0")"
 
 # Create virtual environment if not exists
-if [ ! -d "bleep" ]; then
+if [ ! -d "venv" ]; then
     echo "Creating virtual environment 'venv'..."
     python3 -m venv venv
 fi
