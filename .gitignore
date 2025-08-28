@@ -55,3 +55,7 @@ coverage.xml
 # OS-specific trash
 .DS_Store
 Thumbs.db
+
+# output results of test runs
+backend/results/
+backend/resources/models/*.onnx
