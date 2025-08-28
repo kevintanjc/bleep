@@ -1,23 +1,17 @@
-import cv2
-from ultralytics import YOLO
+from pathlib import Path
+from backend.src.pipeline import run_pipeline
+from backend.src.load_config import load_runtime_config, init_tesseract
 
-# Load the YOLOv8 model
-model = YOLO("backend/LP-detection.pt")
+def main():
+    cfg = load_runtime_config("./config.yaml")
+    if cfg["ocr"].get("tesseract_cmd", ""):
+        init_tesseract(cfg["ocr"]["tesseract_cmd"])
+    else:
+        init_tesseract("")
 
-# Load the input image
-img1 = cv2.imread('backend/resources/images/img1.jpg')
-img2 = cv2.imread('backend/resources/images/img2.jpeg')
-images = [img1, img2]
+    reports = run_pipeline(cfg)
+    for r in reports:
+        print(f"Report: {r}")
 
-# Run detection
-for idx, img in enumerate([img1, img2], start=1):
-    results = model(img)
-
-    # Save results (YOLO saves predictions automatically if you call .save())
-    results[0].save(filename=f"pred_{idx}.jpg")
-
-    # If you want crops of detections:
-    for j, box in enumerate(results[0].boxes.xyxy):
-        x1, y1, x2, y2 = map(int, box)
-        crop = img[y1:y2, x1:x2]
-        cv2.imwrite(f"license_plate_{idx}_{j}.jpg", crop)
+if __name__ == "__main__":
+    main()
