@@ -3,14 +3,14 @@ SETLOCAL
 cd /d "%~dp0"
 
 REM Check if venv exists
-IF NOT EXIST bleep (
-    echo Creating virtual environment "bleep"...
-    python -m venv bleep
+IF NOT EXIST venv (
+    echo Creating virtual environment "venv"...
+    python -m venv venv
 )
 
 REM Activate venv
 echo Activating virtual environment...
-CALL bleep\Scripts\activate.bat
+CALL venv\Scripts\activate.bat
 
 REM Upgrade pip
 echo Upgrading pip...
