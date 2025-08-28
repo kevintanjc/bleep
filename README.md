@@ -8,7 +8,7 @@ Install [Tesseract OCR](https://github.com/tesseract-ocr/tessdoc) and confirm th
 
 ### macOS and Linux
 ```bash
-git clone <your-repo-url>
+git clone [<your-repo-url>](https://github.com/kevintanjc/bleep.git)
 cd bleep
 chmod +x run.sh
 
@@ -17,7 +17,7 @@ chmod +x run.sh
 
 ### Windows
 ```bash
-git clone <your-repo-url>
+git clone [<your-repo-url>](https://github.com/kevintanjc/bleep.git)
 cd bleep
 
 ./run.bat
