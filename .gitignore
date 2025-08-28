@@ -58,3 +58,4 @@ Thumbs.db
 
 # output results of test runs
 backend/results/
+backend/resources/models/*.onnx
