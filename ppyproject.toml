@@ -7,6 +7,7 @@ dependencies = [
     "opencv-python==4.12.0.88",
     "torch==2.8.0",
     "ultralytics==8.3.172"
+    "pytesseract==0.3.13"
 ]
 
 [build-system]
