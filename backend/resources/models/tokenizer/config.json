@@ -1,6 +1,4 @@
 {
-  "_comment": "This config loads DistilBERT, licensed under CC-BY-NC-4.0",
-
   "_name_or_path": "Isotonic/distilbert_finetuned_ai4privacy_v2",
   "activation": "gelu",
   "architectures": [

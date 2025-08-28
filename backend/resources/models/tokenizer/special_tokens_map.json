@@ -1,7 +1,4 @@
 {
-  "_comment": "This config loads DistilBERT, licensed under CC-BY-NC-4.0",
-
-  
   "additional_special_tokens": [
     "[PAD]",
     "[UNK]",
