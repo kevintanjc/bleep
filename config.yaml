@@ -1,0 +1,25 @@
+# config.yaml
+
+# Model settings
+model:
+  path: backend/resources/models/LP-detection.pt
+
+# Output directory
+output:
+  results_dir: backend/results
+
+# OCR settings
+ocr:
+  tesseract_cmd: "" # e.g. "C:/Program Files/Tesseract-OCR/tesseract.exe" on Windows
+  config: "--psm 6"
+  conf_threshold: 0 # minimum confidence score to accept word
+
+# Redaction settings
+redaction:
+  padding: 4
+
+# PII patterns (regex)
+patterns:
+  SG_NRIC_FIN: "\\b[STFG]\\d{7}[A-Z]\\b"
+  PASSPORT_GENERIC: "\\b[A-Z]{2}\\d{7}\\b"
+  GEN_ID: "\\b(?=[A-Z0-9]{6,12}\\b)(?:.*\\d.*\\d)[A-Z0-9]+\\b"
