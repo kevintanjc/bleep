@@ -5,7 +5,6 @@ __pycache__/
 
 # Virtual environments
 venv/
-bleep/
 .env/
 *.env
 
@@ -56,6 +55,29 @@ coverage.xml
 .DS_Store
 Thumbs.db
 
-# output results of test runs
+# Backend outputs
 backend/results/
 backend/resources/models/*.onnx
+
+# Frontend dependencies
+frontend/node_modules/
+
+# Expo/React Native caches
+frontend/.expo/
+frontend/.expo-shared/
+frontend/.turbo/
+frontend/metro-cache/
+
+# Native projects (if you’re staying in Expo managed, ignore these)
+frontend/android/
+frontend/ios/
+
+# Native build junk (if you ever do keep android/ or ios/)
+frontend/android/.gradle/
+frontend/android/build/
+frontend/ios/build/
+frontend/ios/Pods/
+
+# Editor backups
+*.bak
+*~
