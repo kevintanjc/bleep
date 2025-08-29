@@ -1,8 +1,15 @@
 import React from "react";
-import { Gallery } from "@/components/Gallery";
+import { View } from "react-native";
 import { useGallery } from "@/context/GalleryContext";
+import { Gallery } from "@/components/Gallery";
 
 export default function RedactedScreen() {
-  const { redacted } = useGallery();
-  return <Gallery uris={redacted} />;
+  const { state } = useGallery() as {
+    state: { redacted: { uri: string }[] };
+  };
+  return (
+    <View style={{ flex: 1 }}>
+      <Gallery uris={(state.redacted || []).map(r => r.uri)} />
+    </View>
+  );
 }
