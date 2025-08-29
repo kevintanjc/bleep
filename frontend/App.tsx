@@ -1,22 +1,23 @@
+// App.tsx
 import React, { useEffect } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import OriginalsScreen from "@/screens/OriginalsScreen";
 import RedactedScreen from "@/screens/RedactedScreen";
-import { UploadButton } from "@/components/Upload";
 import * as ImagePicker from "expo-image-picker";
-import { ensureDirs, saveToOriginals, saveToRedacted } from "@/storage/paths";
-import { apiFetch } from "@/api/client";
+import { ensureDirs, saveToOriginals, saveToRedactedFromUri } from "@/storage/paths";
 import { StatusBar } from "expo-status-bar";
 import { MaterialIcons } from "@expo/vector-icons";
-import { View, Alert } from "react-native";
+import { View, Alert, TouchableOpacity, Text, StyleSheet } from "react-native";
 import { GalleryProvider } from "@/context/GalleryContext";
 import { sendImageForRedaction } from "@/api/redact";
 
 const Tab = createBottomTabNavigator();
 
 export default function App() {
-  useEffect(() => { ensureDirs(); }, []);
+  useEffect(() => {
+    ensureDirs();
+  }, []);
 
   async function handleUpload() {
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -29,19 +30,22 @@ export default function App() {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       quality: 1
     });
-
     if (res.canceled || res.assets.length === 0) return;
 
     try {
-    const asset = res.assets[0];
-    const savedOriginal = await saveToOriginals(asset.uri);
+      const asset = res.assets[0];
 
-    const { bytes, applied } = await sendImageForRedaction(savedOriginal);
+      // Save original
+      const savedOriginal = await saveToOriginals(asset.uri);
 
-    const name = `redacted_${Date.now()}.jpg`;
-    await saveToRedacted(bytes, name);
+      // Send to API, get back a local URI we can display or persist
+      const { uri: redactedTempUri, applied } = await sendImageForRedaction(savedOriginal);
 
-    Alert.alert("Done", applied ? "Redactions applied." : "No redactions found, saved original.");
+      // Persist redacted file into your redacted folder
+      const name = `redacted_${Date.now()}.jpg`;
+      await saveToRedactedFromUri(redactedTempUri, name);
+
+      Alert.alert("Done", applied ? "Redactions applied." : "No redactions found, saved original.");
     } catch (e: any) {
       Alert.alert("Processing failed", e.message ?? String(e));
     }
@@ -52,12 +56,17 @@ export default function App() {
       <NavigationContainer>
         <StatusBar style="auto" />
         <View style={{ flex: 1 }}>
-          <Tab.Navigator screenOptions={({ route }) => ({
-            headerRight: () => <UploadButton onPress={handleUpload} />,
-            tabBarIcon: ({ color, size }) => (
-              <MaterialIcons name={route.name === "Redacted" ? "blur-on" : "photo-library"} size={size} color={color} />
-            )
-          })}>
+          <Tab.Navigator
+            screenOptions={({ route }) => ({
+              tabBarIcon: ({ color, size }) => (
+                <MaterialIcons
+                  name={route.name === "Redacted" ? "blur-on" : "photo-library"}
+                  size={size}
+                  color={color}
+                />
+              )
+            })}
+          >
             <Tab.Screen name="Redacted" component={RedactedScreen} />
             <Tab.Screen name="Originals" component={OriginalsScreen} />
           </Tab.Navigator>
