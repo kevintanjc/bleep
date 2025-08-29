@@ -20,6 +20,7 @@ export function Gallery({
   return (
     <FlatList
       data={uris}
+      extraData={uris.length}
       keyExtractor={item => item}
       numColumns={3}
       contentContainerStyle={{ padding: 8 }}

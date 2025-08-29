@@ -1,6 +1,5 @@
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Any
 import numpy as np
-import cv2
 
 def _clip_box(bx: Dict, w: int, h: int) -> Dict:
     return {
@@ -12,29 +11,41 @@ def _clip_box(bx: Dict, w: int, h: int) -> Dict:
         "score": float(bx.get("score", 1.0)) if bx.get("score") is not None else None
     }
 
-def apply_redactions(img_rgb: np.ndarray, boxes: List[Dict], cfg) -> Tuple[np.ndarray, bool]:
+def _ensure_uint8_rgb(arr: np.ndarray) -> np.ndarray:
+    arr = np.asarray(arr)
+    if arr.ndim != 3 or arr.shape[2] != 3:
+        raise ValueError(f"Redacted image must be HxWx3. Got shape {arr.shape}")
+    if arr.dtype != np.uint8:
+        arr = np.clip(arr, 0, 255).astype(np.uint8)
+    if not arr.flags.c_contiguous:
+        arr = np.ascontiguousarray(arr)
+    return arr
+
+def apply_redactions(img_rgb: np.ndarray, boxes: List[Dict], cfg: Dict[str, Any]) -> Tuple[np.ndarray, bool]:
     """
-    Returns redacted image and a boolean applied.
-    Strategy is configured in cfg["redaction"].
-    Supported:
-      mode: "fill" or "blur"
-      fill_color: [r, g, b]
-      blur_ksize: odd int
-      blur_sigma: int
+    Returns (redacted_image_rgb, applied_flag).
+    Reads redaction settings from cfg["redaction"].
+
+    Config keys supported:
+      style: "fill" or "blur" or "box"  default "fill"
+      fill_colour or fill_color: [r,g,b] default [0,0,0]
+      blur_ksize: odd int kernel size    default 21
+      blur_sigma: int sigma for Gaussian default 0
     """
+    if not isinstance(img_rgb, np.ndarray):
+        img_rgb = np.asarray(img_rgb)
+
+    img_rgb = _ensure_uint8_rgb(img_rgb)
+
     if not boxes:
         return img_rgb, False
 
     h, w = img_rgb.shape[:2]
     out = img_rgb.copy()
+    fill_col = [0, 0, 0]
+    fill_col = np.array([int(max(0, min(255, c))) for c in fill_col], dtype=np.uint8)
 
-    red_cfg = cfg.get("redaction", {})
-    mode = red_cfg.get("mode", "fill")
-    fill_color = red_cfg.get("fill_color", [0, 0, 0])  # black box
-    blur_ksize = int(red_cfg.get("blur_ksize", 23))
-    if blur_ksize % 2 == 0:
-        blur_ksize += 1
-    blur_sigma = int(red_cfg.get("blur_sigma", 11))
+    applied = False
 
     for raw in boxes:
         b = _clip_box(raw, w, h)
@@ -43,11 +54,8 @@ def apply_redactions(img_rgb: np.ndarray, boxes: List[Dict], cfg) -> Tuple[np.nd
             continue
 
         roi = out[y1:y2, x1:x2, :]
-        if mode == "blur":
-            blurred = cv2.GaussianBlur(roi, (blur_ksize, blur_ksize), blur_sigma)
-            out[y1:y2, x1:x2, :] = blurred
-        else:
-            # fill by default
-            out[y1:y2, x1:x2, :] = np.array(fill_color, dtype=np.uint8)
+        roi[:] = fill_col
+        applied = True
 
-    return out, True
+    out = _ensure_uint8_rgb(out)
+    return out, applied

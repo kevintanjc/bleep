@@ -20,11 +20,14 @@ export async function saveToOriginals(localUri: string) {
   return dest;
 }
 
-export async function saveToRedacted(bytes: Uint8Array, suggestedName?: string) {
-  const name = suggestedName || `redacted_${Date.now()}.jpg`;
-  const dest = redactedPath + name;
-  await FileSystem.writeAsStringAsync(dest, Buffer.from(bytes).toString("base64"), { encoding: FileSystem.EncodingType.Base64 });
+export async function saveToRedactedFromUri(srcUri: string, name: string) {
+  const dest = `${redactedDir()}/${name}`;
+  await FileSystem.copyAsync({ from: srcUri, to: dest });
   return dest;
+}
+
+export function redactedDir() {
+  return FileSystem.documentDirectory + "redacted";
 }
 
 export async function listImages(dir: "originals" | "redacted") {

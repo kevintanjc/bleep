@@ -14,28 +14,30 @@ from .redactor import apply_redactions
 
 # ---------- Single-image path for the mobile POST /process ----------
 
-def process_image_bytes(raw: bytes, cfg: dict) -> Tuple[bytes, Dict[str, Any], bool]:
+def process_image_np(img_rgb: np.ndarray, cfg: dict) -> Tuple[np.ndarray, Dict[str, Any], bool]:
     """
-    Accepts raw image bytes.
-    Returns JPEG bytes of the redacted image, metadata dict, and a boolean 'applied'.
+    Accepts an RGB ndarray (H, W, 3), dtype uint8.
+    Returns redacted RGB ndarray, metadata dict, and 'applied' flag.
     """
-    # Decode to RGB ndarray
-    img = Image.open(io.BytesIO(raw)).convert("RGB")
-    img_rgb = np.array(img)
+    print("PROCESSING IMAGE.......")
+    if img_rgb.ndim != 3 or img_rgb.shape[2] != 3:
+        raise ValueError(f"Expected HxWx3 RGB, got shape {img_rgb.shape}")
 
-    # 1) plates via YOLO
-    lp_boxes = detect_license_plates(img_rgb, cfg)  # list of {x1,y1,x2,y2,label,score}
+    # 1) license plates
+    print("Detecting License Plates")
+    lp_boxes = detect_license_plates(img_rgb, cfg)
 
-    # 2) PII via OCR + analyzer
-    pii_boxes = find_text_pii(img_rgb, cfg)         # same shape
+    # 2) PII text
+    print("Detecting text PII")
+    pii_boxes = find_text_pii(img_rgb, cfg)
 
-    # 3) merge then redact once
+    # 3) merge and redact
+    print("Redacting..")
     all_boxes: List[Dict[str, Any]] = lp_boxes + pii_boxes
     redacted_rgb, applied = apply_redactions(img_rgb, all_boxes, cfg)
 
-    # Encode to JPEG bytes
-    out = io.BytesIO()
-    Image.fromarray(redacted_rgb).save(out, format="JPEG", quality=90)
+    # normalize result
+    redacted_rgb = np.clip(redacted_rgb, 0, 255).astype(np.uint8)
 
     meta = {
         "boxes": all_boxes,
@@ -45,7 +47,7 @@ def process_image_bytes(raw: bytes, cfg: dict) -> Tuple[bytes, Dict[str, Any], b
             "total": len(all_boxes),
         }
     }
-    return out.getvalue(), meta, applied
+    return redacted_rgb, meta, applied
 
 
 # ---------- Batch pipeline for folders (kept for your CLI) ----------
