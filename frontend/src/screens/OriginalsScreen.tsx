@@ -5,6 +5,8 @@ import { useGallery } from "@/context/GalleryContext";
 import { sendImageForRedaction } from "@/api/redact";
 import { saveBytesToCache } from "@/utils/image";
 import { Gallery } from "@/components/Gallery";
+import { UploadButton } from "@/components/Upload";
+
 
 export default function OriginalsScreen() {
   const { originals, addOriginal, addRedacted } = useGallery();
@@ -23,13 +25,10 @@ export default function OriginalsScreen() {
     setRefreshing(true);
     try {
       const { bytes, applied } = await sendImageForRedaction(originalUri);
-
       if (applied) {
-        const name = `redacted_${Date.now()}.jpg`;
-        const redactedUri = await saveBytesToCache(bytes, name);
+        const redactedUri = await saveBytesToCache(bytes, `redacted_${Date.now()}.jpg`);
         addRedacted(redactedUri);
       } else {
-        // No redactions, mirror the original into Redacted
         addRedacted(originalUri);
       }
       Alert.alert("Done", applied ? "Redactions applied" : "No redactions found");
@@ -42,8 +41,8 @@ export default function OriginalsScreen() {
 
   return (
     <View style={{ flex: 1 }}>
-      <Button title="Pick & Redact" onPress={pickAndProcess} />
       <Gallery uris={originals} refreshing={refreshing} />
+      <UploadButton onPress={pickAndProcess} />
     </View>
   );
 }

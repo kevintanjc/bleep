@@ -3,7 +3,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import OriginalsScreen from "@/screens/OriginalsScreen";
 import RedactedScreen from "@/screens/RedactedScreen";
-import { UploadFab } from "@/components/UploadFab";
+import { UploadButton } from "@/components/Upload";
 import * as ImagePicker from "expo-image-picker";
 import { ensureDirs, saveToOriginals, saveToRedacted } from "@/storage/paths";
 import { sendImageForRedaction } from "@/api/client";
@@ -49,7 +49,7 @@ export default function App() {
         <StatusBar style="auto" />
         <View style={{ flex: 1 }}>
           <Tab.Navigator screenOptions={({ route }) => ({
-            headerRight: () => <UploadFab onPress={handleUpload} />,
+            headerRight: () => <UploadButton onPress={handleUpload} />,
             tabBarIcon: ({ color, size }) => (
               <MaterialIcons name={route.name === "Redacted" ? "blur-on" : "photo-library"} size={size} color={color} />
             )
