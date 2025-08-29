@@ -6,6 +6,7 @@
     "baseUrl": ".",
     "jsx": "react-native",
     "allowSyntheticDefaultImports": true,
+    "types": ["node"],
     "paths": {
       "@/components/*": ["src/components/*"],
       "@/screens/*": ["src/screens/*"],
