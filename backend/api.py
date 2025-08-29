@@ -6,7 +6,7 @@ import io
 import numpy as np
 import yaml
 
-from .src.pipeline import process_image_np  # must accept and return RGB ndarrays
+from .src.detection import process_image_np  # must accept and return RGB ndarrays
 
 app = FastAPI()
 
