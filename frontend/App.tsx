@@ -6,11 +6,12 @@ import RedactedScreen from "@/screens/RedactedScreen";
 import { UploadButton } from "@/components/Upload";
 import * as ImagePicker from "expo-image-picker";
 import { ensureDirs, saveToOriginals, saveToRedacted } from "@/storage/paths";
-import { sendImageForRedaction } from "@/api/client";
+import { apiFetch } from "@/api/client";
 import { StatusBar } from "expo-status-bar";
 import { MaterialIcons } from "@expo/vector-icons";
 import { View, Alert } from "react-native";
 import { GalleryProvider } from "@/context/GalleryContext";
+import { sendImageForRedaction } from "@/api/redact";
 
 const Tab = createBottomTabNavigator();
 
@@ -32,14 +33,17 @@ export default function App() {
     if (res.canceled || res.assets.length === 0) return;
 
     try {
-      const asset = res.assets[0];
-      const savedOriginal = await saveToOriginals(asset.uri);
-      const bytes = await sendImageForRedaction(savedOriginal);
-      const name = `redacted_${Date.now()}.jpg`;
-      await saveToRedacted(bytes, name);
-      Alert.alert("Done", "Redacted image saved.");
+    const asset = res.assets[0];
+    const savedOriginal = await saveToOriginals(asset.uri);
+
+    const { bytes, applied } = await sendImageForRedaction(savedOriginal);
+
+    const name = `redacted_${Date.now()}.jpg`;
+    await saveToRedacted(bytes, name);
+
+    Alert.alert("Done", applied ? "Redactions applied." : "No redactions found, saved original.");
     } catch (e: any) {
-      Alert.alert("Processing failed", e.message);
+      Alert.alert("Processing failed", e.message ?? String(e));
     }
   }
 
