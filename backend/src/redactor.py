@@ -1,36 +1,53 @@
+from typing import List, Dict, Tuple
+import numpy as np
 import cv2
 
+def _clip_box(bx: Dict, w: int, h: int) -> Dict:
+    return {
+        "x1": int(max(0, min(w - 1, bx["x1"]))),
+        "y1": int(max(0, min(h - 1, bx["y1"]))),
+        "x2": int(max(0, min(w - 1, bx["x2"]))),
+        "y2": int(max(0, min(h - 1, bx["y2"]))),
+        "label": bx.get("label", "redact"),
+        "score": float(bx.get("score", 1.0)) if bx.get("score") is not None else None
+    }
 
-def _clip(x1, y1, x2, y2, w, h):
-    x1 = max(0, min(int(x1), w - 1))
-    y1 = max(0, min(int(y1), h - 1))
-    x2 = max(0, min(int(x2), w - 1))
-    y2 = max(0, min(int(y2), h - 1))
-    if x2 < x1: x1, x2 = x2, x1
-    if y2 < y1: y1, y2 = y2, y1
-    return x1, y1, x2, y2
+def apply_redactions(img_rgb: np.ndarray, boxes: List[Dict], cfg) -> Tuple[np.ndarray, bool]:
+    """
+    Returns redacted image and a boolean applied.
+    Strategy is configured in cfg["redaction"].
+    Supported:
+      mode: "fill" or "blur"
+      fill_color: [r, g, b]
+      blur_ksize: odd int
+      blur_sigma: int
+    """
+    if not boxes:
+        return img_rgb, False
 
-def _odd(k):
-    k = max(5, int(k))
-    return k if k % 2 == 1 else k + 1
+    h, w = img_rgb.shape[:2]
+    out = img_rgb.copy()
 
-def draw_redactions(img, boxes_xyxy, pad=6, blur_strength=35):
-    if img is None or len(boxes_xyxy) == 0:
-        return img.copy(), []
+    red_cfg = cfg.get("redaction", {})
+    mode = red_cfg.get("mode", "fill")
+    fill_color = red_cfg.get("fill_color", [0, 0, 0])  # black box
+    blur_ksize = int(red_cfg.get("blur_ksize", 23))
+    if blur_ksize % 2 == 0:
+        blur_ksize += 1
+    blur_sigma = int(red_cfg.get("blur_sigma", 11))
 
-    h, w = img.shape[:2]
-    out = img.copy()
-
-    k = _odd(max(blur_strength, int(0.015 * max(w, h))))
-    blurred = cv2.GaussianBlur(out, (k, k), 0)
-
-    final_boxes = []
-    for x1, y1, x2, y2 in boxes_xyxy:
-        x1, y1, x2, y2 = x1 - pad, y1 - pad, x2 + pad, y2 + pad
-        x1, y1, x2, y2 = _clip(x1, y1, x2, y2, w, h)
+    for raw in boxes:
+        b = _clip_box(raw, w, h)
+        x1, y1, x2, y2 = b["x1"], b["y1"], b["x2"], b["y2"]
         if x2 <= x1 or y2 <= y1:
             continue
-        out[y1:y2, x1:x2] = blurred[y1:y2, x1:x2]
-        final_boxes.append([x1, y1, x2, y2])
 
-    return out, final_boxes
+        roi = out[y1:y2, x1:x2, :]
+        if mode == "blur":
+            blurred = cv2.GaussianBlur(roi, (blur_ksize, blur_ksize), blur_sigma)
+            out[y1:y2, x1:x2, :] = blurred
+        else:
+            # fill by default
+            out[y1:y2, x1:x2, :] = np.array(fill_color, dtype=np.uint8)
+
+    return out, True
