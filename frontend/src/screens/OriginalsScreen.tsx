@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Alert, Button, View } from "react-native";
+import { Alert, View } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { useGallery } from "@/context/GalleryContext";
 import { sendImageForRedaction } from "@/api/redact";
