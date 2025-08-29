@@ -7,7 +7,7 @@ paths:
 
 redaction:
   style: box
-  log_provenance: true
+  fill_colour: [0, 0, 0]
 
 
 # Model settings
@@ -16,7 +16,6 @@ model:
 
 # Input/Output directory
 io:
-  input_dir: backend/resources/images
   results_img_dir: backend/results/images
   results_rpt_dir: backend/results/reports
 

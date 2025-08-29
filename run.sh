@@ -1,30 +1,40 @@
 #!/usr/bin/env bash
-set -e
+set -euo pipefail
 
-# repo root
+# Always run from repo root
 cd "$(dirname "$0")"
+REPO=$(pwd)
 
-# venv
-if [ ! -d ".venv" ]; then
-  python3 -m venv .venv
+# ---------- Backend: venv + deps ----------
+if [ ! -d "venv" ]; then
+  python -m venv venv
 fi
-. .venv/bin/activate
+# shellcheck disable=SC1091
+source venv/bin/activate
+python -m pip install --upgrade pip >/dev/null
+python -m pip install -r requirements.txt
 
-python -m pip install --upgrade pip
+# Launch backend in its own terminal window
+gnome-terminal --title="backend" -- bash -c "
+  cd \"$REPO\" && \
+  source venv/bin/activate && \
+  uvicorn backend.api:app --host 0.0.0.0 --port 8000 --reload --access-log
+"
 
-# prefer pyproject if present, then requirements.txt
-if [ -f "pyproject.toml" ]; then
-  pip install -e .
+# ---------- Frontend: npm install + expo ----------
+pushd frontend >/dev/null
+if [ ! -d "node_modules" ]; then
+  npm install
 else
-  pip install -r requirements.txt
+  echo \"frontend/node_modules exists, skipping npm install\"
 fi
 
-# fetch models
-export YOLO_SRC=https://huggingface.co/MKgoud/License-Plate-Recognizer/resolve/main/LP-detection.pt
-python scripts/download_models.py
+npx expo install --fix
+npm install --save-dev @types/node
 
-# sanity folders
-mkdir -p backend/results
-
-# launch app
-exec uvicorn backend.main:app --host 0.0.0.0 --port 8000
+# Launch frontend in its own terminal window
+gnome-terminal --title="frontend" -- bash -c "
+  cd \"$REPO/frontend\" && \
+  npx expo start -c
+"
+popd >/dev/null
