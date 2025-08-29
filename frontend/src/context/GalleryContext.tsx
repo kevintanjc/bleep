@@ -1,44 +1,66 @@
-import {
-  createContext,
-  useContext,
-  useMemo,
-  useState,
-  PropsWithChildren
-} from "react";
+import React, { createContext, useContext, useMemo, useState, useCallback, ReactNode } from "react";
 
-type GalleryCtx = {
-  originals: string[];
-  redacted: string[];
-  addOriginal: (uri: string) => void;
-  addRedacted: (uri: string) => void;
-  reset: () => void;
+export type Original = {
+  id: string;
+  uri: string;
+  createdAt: number;
+  name?: string;
 };
 
-const Ctx = createContext<GalleryCtx | null>(null);
+export type Redacted = {
+  id: string;
+  originalId: string;
+  uri: string;
+  applied: boolean;
+  createdAt: number;
+};
 
-export function GalleryProvider({ children }: PropsWithChildren) {
-  const [originals, setOriginals] = useState<string[]>([]);
-  const [redacted, setRedacted] = useState<string[]>([]);
+type GalleryState = {
+  originals: Original[];
+  redacted: Redacted[];
+};
 
-  const value = useMemo<GalleryCtx>(
-    () => ({
-      originals,
-      redacted,
-      addOriginal: u => setOriginals(x => [u, ...x]),
-      addRedacted: u => setRedacted(x => [u, ...x]),
-      reset: () => {
-        setOriginals([]);
-        setRedacted([]);
-      }
-    }),
-    [originals, redacted]
-  );
+type GalleryAPI = {
+  state: GalleryState;
+  addOriginal: (orig: Original) => void;
+  addRedacted: (red: Redacted) => void;
+  getRedactedForOriginal: (originalId: string) => Redacted[];
+};
 
-  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
-}
+const GalleryContext = createContext<GalleryAPI | null>(null);
 
 export function useGallery() {
-  const ctx = useContext(Ctx);
-  if (!ctx) throw new Error("useGallery must be used within GalleryProvider");
+  const ctx = useContext(GalleryContext);
+  if (!ctx) throw new Error("GalleryContext missing");
   return ctx;
+}
+
+export function GalleryProvider({ children }: { children: ReactNode }) {
+  const [originals, setOriginals] = useState<Original[]>([]);
+  const [redacted, setRedacted] = useState<Redacted[]>([]);
+
+  const addOriginal = useCallback((orig: Original) => {
+    setOriginals(prev => [orig, ...prev]);
+  }, []);
+
+  const addRedacted = useCallback((r: Redacted) => {
+    setRedacted(prev => [r, ...prev]);
+  }, []);
+
+  const getRedactedForOriginal = useCallback(
+    (originalId: string) => redacted.filter(r => r.originalId === originalId),
+    [redacted]
+  );
+
+  const api = useMemo<GalleryAPI>(
+    () => ({
+      state: { originals, redacted },
+      addOriginal,
+      addRedacted,
+      getRedactedForOriginal
+    }),
+    [originals, redacted, addOriginal, addRedacted, getRedactedForOriginal]
+  );
+
+  return <GalleryContext.Provider value={api}>{children}</GalleryContext.Provider>;
 }
