@@ -28,7 +28,7 @@ NER_LABELS_PATH=backend/resources/models/labels.txt
 Inside bleep/frontend, create an env file
 ```env
 COMPUTER_LAN=http://<ip>
-EMULATOR_LAN=http://10.0.2.2:8000
+EMULATOR_LAN=http://10.x.x.2:<port>
 BACKEND_URL=http://<ip>:<port>
 ```
 
