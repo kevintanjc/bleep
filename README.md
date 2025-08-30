@@ -14,6 +14,8 @@ Features:
 
 Install [Tesseract OCR](https://github.com/tesseract-ocr/tessdoc) and confirm the binary is on PATH. Update config.yaml if you use a custom path.
 
+Download [DistilBert](https://huggingface.co/Isotonic/distilbert_finetuned_ai4privacy_v2/blob/main/onnx/model.onnx) and place it in backend/resources/models
+
 Inside bleep/backend, create an env file
 ```env
 PYTESSERACT_PATH=<input file path>
