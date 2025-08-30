@@ -7,6 +7,7 @@ function filenameFromUri(uri: string) {
   const base = uri.split("/").pop() || "upload.jpg";
   return base.includes(".") ? base : base + ".jpg";
 }
+
 async function normalizeToFileUri(uri: string) {
   if (uri.startsWith("file://")) return uri;
   const target = FileSystem.cacheDirectory + filenameFromUri(uri);
