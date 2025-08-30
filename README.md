@@ -9,8 +9,9 @@ Features:
 - Redacts matches by blurring or boxing regions, then saves a redacted copy alongside the original.
 - Original images will require a verification before they are accessible.
 
+## This Project runs with [Expo SDK 51](https://expo.dev/go?sdkVersion=51&platform=android&device=true)
 
-## Set up
+## Set Up (Local Machine)
 
 Install [Tesseract OCR](https://github.com/tesseract-ocr/tessdoc) and confirm the binary is on PATH. Update config.yaml if you use a custom path.
 
