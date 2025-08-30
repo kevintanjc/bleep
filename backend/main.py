@@ -1,4 +1,4 @@
-from src.pipeline import run_pipeline
+from backend.src.detection import run_pipeline
 import pytesseract
 import yaml
 

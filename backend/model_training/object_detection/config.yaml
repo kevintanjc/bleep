@@ -1,0 +1,47 @@
+project_root: .
+
+data:
+  # Choose one mode
+  source_type: hf_parquet # hf_parquet or local_parquet
+
+  # HF mode settings
+  hf_repo_id: jtatman/license-plate-finetuning
+  hf_split_map: { train: train, val: validation }
+  class_name: license-plate
+  force_resplit: false # true if you want custom splot
+
+  # Local parquet mode settings
+  parquet_dir: backend/model_training/object_detection/images
+  parquet_files:
+    - dataset1.parquet
+    - dataset2.parquet
+  image_root: backend/model_training/object_detection/images_raw
+
+  # Output dataset for YOLO
+  output_dataset_dir: backend/model_training/object_detection/dataset
+  yolo_data_yaml: backend/model_training/object_detection/dataset/license_plate.yaml
+
+  # custom split
+  splits: [0.7, 0.2, 0.1]
+  seed: 1337
+
+  # Only used in local_parquet mode
+  class_map:
+    license-plate: 0
+    "0": 0
+  class_map_names:
+    license-plate: 0
+
+train:
+  enabled: false
+  base: backend/resources/models/LP-detection.pt
+  device: "cpu" # or 'gpu' if CUDA is available
+  imgsz: 640
+  epochs: 50
+  batch: 8
+  workers: 4
+  project: lp-det
+  name: LP-det-finetune
+  mosaic: 0.7
+  mixup: 0.0
+  patience: 15
