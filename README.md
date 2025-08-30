@@ -9,6 +9,8 @@ Features:
 - Redacts matches by blurring or boxing regions, then saves a redacted copy alongside the original.
 - Original images will require a verification before they are accessible.
 
+![redacted](https://github.com/user-attachments/assets/467a12d4-4274-4d17-80b9-18a4cd1e5388)
+
 ## This Project runs with [Expo SDK 51](https://expo.dev/go?sdkVersion=51&platform=android&device=true)
 
 ## Set Up (Local Machine)
