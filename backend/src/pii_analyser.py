@@ -207,11 +207,11 @@ def build_analyzer(spacy_model: str = "en_core_web_lg", use_distilbert: bool = T
     if use_distilbert:
         try:
             db = DistilBertOnnxRecognizer(
-                onnx_path=os.getenv("ONNX_MODEL_PATH", "backend/resources/models/model.onnx"),
+                onnx_path=os.getenv("ONNX_MODEL_PATH"),
                 tokenizer_path=os.getenv("TOKENIZER_PATH"),
                 labels_path=os.getenv("NER_LABELS_PATH"),
                 config_path=os.getenv("NER_CONFIG_PATH"),
-                score_threshold=float(os.getenv("HF_NER_THRESHOLD", "0.60")),
+                score_threshold=0.60,
                 device=int(os.getenv("HF_NER_DEVICE", "-1")),
                 max_length=int(os.getenv("HF_MAX_LEN", "256")),
                 allow_download=os.getenv("HF_ALLOW_DOWNLOAD", "true").lower() == "true",
