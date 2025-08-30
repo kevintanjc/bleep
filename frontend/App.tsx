@@ -11,6 +11,8 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { View, Alert, TouchableOpacity, Text, StyleSheet } from "react-native";
 import { GalleryProvider } from "@/context/GalleryContext";
 import { sendImageForRedaction } from "@/api/redact";
+import { RequireAuth } from "src/auth/RequireAuth";
+import { AuthProvider } from "src/auth/AuthContext";
 
 const Tab = createBottomTabNavigator();
 
@@ -52,26 +54,36 @@ export default function App() {
   }
 
   return (
-    <GalleryProvider>
-      <NavigationContainer>
-        <StatusBar style="auto" />
-        <View style={{ flex: 1 }}>
-          <Tab.Navigator
-            screenOptions={({ route }) => ({
-              tabBarIcon: ({ color, size }) => (
-                <MaterialIcons
-                  name={route.name === "Redacted" ? "blur-on" : "photo-library"}
-                  size={size}
-                  color={color}
-                />
-              )
-            })}
-          >
-            <Tab.Screen name="Redacted" component={RedactedScreen} />
-            <Tab.Screen name="Originals" component={OriginalsScreen} />
-          </Tab.Navigator>
-        </View>
-      </NavigationContainer>
-    </GalleryProvider>
+    <AuthProvider>
+      <GalleryProvider>
+        <NavigationContainer>
+          <StatusBar style="auto" />
+          <View style={{ flex: 1 }}>
+            <Tab.Navigator
+              screenOptions={({ route }) => ({
+                tabBarIcon: ({ color, size }) => (
+                  <MaterialIcons
+                    name={route.name === "Redacted" ? "blur-on" : "photo-library"}
+                    size={size}
+                    color={color}
+                  />
+                )
+              })}
+            >
+              <Tab.Screen name="Redacted" component={RedactedScreen} />
+
+              {/* Originals locked behind RequireAuth */}
+              <Tab.Screen name="Originals" options={{ headerTitle: "Originals, locked" }}>
+                {() => (
+                  <RequireAuth reason="Unlock Originals">
+                    <OriginalsScreen />
+                  </RequireAuth>
+                )}
+              </Tab.Screen>
+            </Tab.Navigator>
+          </View>
+        </NavigationContainer>
+      </GalleryProvider>
+    </AuthProvider>
   );
 }

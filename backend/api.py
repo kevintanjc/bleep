@@ -1,7 +1,6 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
-from main import load_runtime_config
 from PIL import Image, UnidentifiedImageError
 import io
 import numpy as np
@@ -22,6 +21,10 @@ app.add_middleware(
 ALLOWED = {"image/jpeg", "image/png", "image/webp", "image/gif"}
 MAX_BYTES = 20 * 1024 * 1024  # 20 MB
 
+def load_runtime_config(path: str) -> dict:
+    with open(path, "r") as f:
+        return yaml.safe_load(f)
+    
 CFG = load_runtime_config("config.yaml")
 
 def ensure_image_ct(content_type: str) -> None:
