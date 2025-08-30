@@ -14,6 +14,21 @@ Features:
 
 Install [Tesseract OCR](https://github.com/tesseract-ocr/tessdoc) and confirm the binary is on PATH. Update config.yaml if you use a custom path.
 
+Inside bleep/backend, create an env file
+```env
+PYTESSERACT_PATH=<input file path>
+ONNX_MODEL_PATH=backend/resources/models/model.onnx
+TOKENIZER_PATH=backend/resources/models/tokenizer
+NER_LABELS_PATH=backend/resources/models/labels.txt
+```
+
+Inside bleep/frontend, create an env file
+```env
+COMPUTER_LAN=http://<ip>
+EMULATOR_LAN=http://10.0.2.2:8000
+BACKEND_URL=http://<ip>:<port>
+```
+
 ### macOS and Linux
 ```bash
 git clone https://github.com/kevintanjc/bleep.git
@@ -30,3 +45,6 @@ cd bleep
 
 ./run.bat
 ```
+## Side Note
+Initial Set up may take a while install the necessary dependencies(~10mins)
+
