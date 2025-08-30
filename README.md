@@ -10,7 +10,7 @@ Features:
 - Original images will require a verification before they are accessible.
 
 
-## Quick start
+## Set up
 
 Install [Tesseract OCR](https://github.com/tesseract-ocr/tessdoc) and confirm the binary is on PATH. Update config.yaml if you use a custom path.
 
