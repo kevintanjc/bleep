@@ -83,3 +83,8 @@ frontend/package
 # Editor backups
 *.bak
 *~
+
+# training folders
+backend/model_training/object_detection/dataset/*
+backend/model_training/object_detection/images/*
+lp-det/
