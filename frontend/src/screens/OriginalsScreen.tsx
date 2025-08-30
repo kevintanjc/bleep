@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { View, Button, Text } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
-import { useGallery } from "@/context/GalleryContext";
-import { Gallery } from "@/components/Gallery";
+import { useGallery } from "src/gallery/GalleryContext";
+import { useInspector } from "src/inspect/InspectorContext";
+import { Gallery } from "src/gallery/Gallery";
 import { sendImageForRedaction } from "@/api/redact";
 
 function makeId() {
@@ -22,6 +23,10 @@ async function toUniqueFileUri(srcUri: string, ext = "jpg") {
 export default function OriginalsScreen() {
   const { state, addOriginal, addRedacted } = useGallery();
   const [status, setStatus] = useState("");
+  const { open } = useInspector()
+
+  const uris = useMemo(() => state.originals.map(o => o.uri), [state.originals]);
+  const items = useMemo(() => uris.map(u => ({ uri: u })), [uris]); 
 
   async function pick() {
     setStatus("");
@@ -65,7 +70,10 @@ export default function OriginalsScreen() {
   return (
     <View style={{ flex: 1 }}>
       <Button title="Add photo" onPress={pick} />
-      <Gallery uris={state.originals.map(o => o.uri)} />
+      <Gallery 
+        uris={state.originals.map(o => o.uri)} 
+        onPress={(index) => open(items, index)}
+      />
     </View>
   );
 }

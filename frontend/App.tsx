@@ -9,10 +9,12 @@ import { ensureDirs, saveToOriginals, saveToRedactedFromUri } from "@/storage/pa
 import { StatusBar } from "expo-status-bar";
 import { MaterialIcons } from "@expo/vector-icons";
 import { View, Alert, TouchableOpacity, Text, StyleSheet } from "react-native";
-import { GalleryProvider } from "@/context/GalleryContext";
+import { GalleryProvider } from "src/gallery/GalleryContext";
 import { sendImageForRedaction } from "@/api/redact";
 import { RequireAuth } from "src/auth/RequireAuth";
 import { AuthProvider } from "src/auth/AuthContext";
+import { InspectorProvider } from "src/inspect/InspectorContext";
+import { ImageInspector } from "src/inspect/ImageInspector";
 
 const Tab = createBottomTabNavigator();
 
@@ -56,33 +58,36 @@ export default function App() {
   return (
     <AuthProvider>
       <GalleryProvider>
-        <NavigationContainer>
-          <StatusBar style="auto" />
-          <View style={{ flex: 1 }}>
-            <Tab.Navigator
-              screenOptions={({ route }) => ({
-                tabBarIcon: ({ color, size }) => (
-                  <MaterialIcons
-                    name={route.name === "Redacted" ? "blur-on" : "photo-library"}
-                    size={size}
-                    color={color}
-                  />
-                )
-              })}
-            >
-              <Tab.Screen name="Redacted" component={RedactedScreen} />
+        <InspectorProvider>
+            <NavigationContainer>
+              <StatusBar style="auto" />
+              <View style={{ flex: 1 }}>
+                <Tab.Navigator
+                  screenOptions={({ route }) => ({
+                    tabBarIcon: ({ color, size }) => (
+                      <MaterialIcons
+                        name={route.name === "Redacted" ? "blur-on" : "photo-library"}
+                        size={size}
+                        color={color}
+                      />
+                    )
+                  })}
+                >
+                  <Tab.Screen name="Redacted" component={RedactedScreen} />
 
-              {/* Originals locked behind RequireAuth */}
-              <Tab.Screen name="Originals" options={{ headerTitle: "Originals, locked" }}>
-                {() => (
-                  <RequireAuth reason="Unlock Originals">
-                    <OriginalsScreen />
-                  </RequireAuth>
-                )}
-              </Tab.Screen>
-            </Tab.Navigator>
-          </View>
-        </NavigationContainer>
+                  {/* Originals locked behind RequireAuth */}
+                  <Tab.Screen name="Originals" options={{ headerTitle: "Originals, locked" }}>
+                    {() => (
+                      <RequireAuth reason="Unlock Originals">
+                        <OriginalsScreen />
+                      </RequireAuth>
+                    )}
+                  </Tab.Screen>
+                </Tab.Navigator>
+              </View>
+            </NavigationContainer>
+          <ImageInspector />
+        </InspectorProvider>
       </GalleryProvider>
     </AuthProvider>
   );
