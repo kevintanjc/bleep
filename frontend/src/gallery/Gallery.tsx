@@ -8,25 +8,36 @@ import {
   RefreshControl
 } from "react-native";
 
+type Props = {
+  uris: string[];
+  onPress?: (index: number) => void;
+};
+
 export function Gallery({
   uris,
   refreshing,
-  onRefresh
+  onRefresh,
+  onPress
 }: {
   uris: string[];
   refreshing?: boolean;
   onRefresh?: () => void;
+  onPress?: (index: number) => void;
 }) {
   return (
     <FlatList
       data={uris}
       extraData={uris.length}
-      keyExtractor={item => item}
+      keyExtractor={(item, i) => `${item}-${i}`}   // file:// duplicates are a thing
       numColumns={3}
       contentContainerStyle={{ padding: 8 }}
       columnWrapperStyle={{ gap: 8 }}
-      renderItem={({ item }) => (
-        <Pressable style={styles.cell}>
+      renderItem={({ item, index }) => (
+        <Pressable
+          style={styles.cell}
+          onPress={() => onPress?.(index)}
+          android_ripple={{ color: "#00000022" }}
+        >
           <Image source={{ uri: item }} style={styles.img} resizeMode="cover" />
         </Pressable>
       )}
